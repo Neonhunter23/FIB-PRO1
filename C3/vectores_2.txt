@@ -1,0 +1,147 @@
+Vectores: (2) Paso de vectores como parámetros
+==============================================
+
+
+Hay tres formas de pasar un vector como parámetro:
+
+    1) el vector es un parámetro de ENTRADA y no hay razón que justifique 
+       duplicar el uso de memoria que requiere su almacenamiento ---->
+       Lo trasmitimos por **referencia constante*** que es simplemente
+       un paso por referencia (que no duplica la info) con un
+       aviso de que no se van a cambiar lo valores del vector.
+
+       Es un caso **muy frecuente**
+
+       Ejemplos: 
+       ---------
+          //pre: ---
+          //post retorna la suma de los valores de v
+          int suma(const vector<int>& v)
+
+
+          //pre: u y v tienen el mismo tamanyo
+          //post: retorna el producto escalar de u y v
+          double producto_escalar(const vector<double>& u, const vector<double>& v)
+
+
+     2) el vector es un parámetro de SALIDA o de ENTRADA/SALIDA. Lo trasmitimos 
+        por referencia.
+
+        Es un caso **frecuente***
+
+        Ejemplos:
+        --------
+            //pre: En el canal de entrada hay al menos v.size()  palabras
+            //post: el vector v contiene las primeras v.size() pabras del cin
+            void leer_vector(vector<string>& v)
+
+           
+            //pre: ---
+            //post: cada valor del vector se ha cambiado por su cuadrado
+            void cuadrado(vector<int>& v)
+
+
+     3) El vector es un parámetro de ENTRADA y **es necesario o inevitable**
+        duplicar el espacio de memoria dedicada a su almacenamiento. Lo 
+        trasmitimos por valor  
+
+        Es un caso **infrecuente**
+
+        
+        Ejemplo: 
+        -------
+             Disponemos de una lista de números en un vector v. Queremos mantener
+             este vector y a la vez disponer en otro vector, llamémosle w tal que 
+             el valor w[i] se el primer primo mayor o igual a v[i]. Por ejemplo,
+             si v es el vector 1, 5, 4, 9, 15, 10 entonces el vector w será
+             2, 5, 5, 11, 17, 11.
+             
+             Aquí podríamos plantear esta solución donde el vector v se pasa por valor,
+             Como el paso es por valor, los cambios de la función en v no afectan 
+             al argumento en el punto de llamada. 
+
+             //pre: ---
+             //post: retorna un vector en cuya posicion i aparece el primer primo mayor 
+                     o igual al valor original de v
+             vector<int> primos_mayores(vector<int> v) {
+                int n = v.size();
+                for (int i = 0; i < n; ++i)
+                    while (not is_prime(v[i])) ++v[i];
+                return v;
+            }
+
+
+            **Atención** este mismo código no es admisible (no compila) si el paso
+                         es por referencia constante
+
+
+Ejemplo:  
+======= 
+En el canal de entrada hay un número entero n seguido de una secuencia de n números
+reales. Se pide un programa para calcular, para cada real de la secuencia cuantos 
+valores que aparecen posteriormente en la secuencia lo superan.
+
+Por ejemplo, si la entrada es:
+5
+3.141 2.78 9.41 3.0 6.891
+
+entonces la salida será:
+
+2 3 0 1 0
+
+Solución:
+--------
+
+#incldue <iostream>
+#include <vector>
+using namespace std;
+
+
+//pre:---
+//post: lee en el vector v una lista de numeros
+//el vector v  se pasa por refrencia, es un resultado
+void leer_vector(vector<double>& v) {
+    int n = v.size();
+    for (int i = 0; i < n; ++i) cin >> v[i];
+}
+
+
+//pre:--
+//post:retorna un vector que en la posicion i indica cuantos valores
+//     en v[i+1...v.size()-1] superan a v[i]
+//
+//el vector v es un parametro de entrada, lo pasamos por referencia const ante
+vector<int> mayores_posteriores(const vector<double>& v) {
+    int n = v.size();
+    vector<int> res(n); //sera el vector que retornaremos al final
+    for (int i = 0; i < n; ++i) { 
+        res[i] = 0;
+        for (int j = i + 1; j < n; ++j)
+            if (v[i] < v[j]) ++res[i];
+    }
+    return res;
+}
+
+
+//pre: el vector w no es vacio
+//post: escribe el vector w en el canal de salida separando los valores 
+//      con un espacio en blanco
+//
+//el vector v es un parametro de entrada, lo pasamos por referencia constante
+void escribir_vector(const vector<int>& w) {
+    int n = w.size();
+    cout << w[0];
+    for (int i = 1; i < n; ++i) cout << ' ' << w[i];
+    cout << endl;
+}
+
+
+int main() {
+    int n;
+    cin >> n;
+    vector<double> v(n);
+    leer_vector(v);
+    vector<int> u = mayores_posteriores(v);
+    escribir_vector(u);
+}
+
